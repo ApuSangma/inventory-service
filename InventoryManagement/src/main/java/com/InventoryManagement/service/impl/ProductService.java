@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import static com.InventoryManagement.constants.InventoryConstants.PRODUCT_NOT_FOUND;
+
 @Service
 public class ProductService implements IProductService {
 
@@ -37,7 +39,7 @@ public class ProductService implements IProductService {
     public ProductBE getProductById(String id) {
         Optional<ProductBE> productBE = IProductRepository.findById(id);
         if (productBE.isEmpty()){
-            throw new ProductCustomException("Product Not Found", HttpStatus.NOT_FOUND);
+            throw new ProductCustomException(PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         return productBE.get();
     }

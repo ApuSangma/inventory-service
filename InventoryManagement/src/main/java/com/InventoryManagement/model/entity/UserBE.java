@@ -1,7 +1,6 @@
 package com.InventoryManagement.model.entity;
 
 import com.InventoryManagement.model.enums.Role;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.mongodb.core.mapping.Document;
 

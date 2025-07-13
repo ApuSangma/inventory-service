@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,7 +16,11 @@ import java.util.List;
 @RequestMapping("users")
 public class AuthController {
     @Autowired
-    private IUserService iUserService;
+    private final IUserService iUserService;
+
+    public AuthController(IUserService iUserService) {
+        this.iUserService = iUserService;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<UserBE> addUser(@Valid @RequestBody UserRequest userRequest) {
@@ -23,22 +28,30 @@ public class AuthController {
         return new ResponseEntity<>(userBE, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserBE>> getAllUser() {
         List<UserBE> allUser = iUserService.getAllUser();
         return new ResponseEntity<>(allUser, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<UserBE> getUserById(@PathVariable String id) {
         UserBE userById = iUserService.getUserById(id);
         return new ResponseEntity<>(userById, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteUser(@PathVariable String id) {
         boolean user = iUserService.deleteUser(id);
-        return new ResponseEntity<>(user, HttpStatus.NO_CONTENT);
+        if (!user) {
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 

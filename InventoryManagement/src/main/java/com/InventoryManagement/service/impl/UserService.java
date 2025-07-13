@@ -8,10 +8,13 @@ import com.InventoryManagement.service.IUserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
+import static com.InventoryManagement.constants.InventoryConstants.USER_NOT_FOUND;
 
 @Service
 public class UserService implements IUserService {
@@ -19,10 +22,14 @@ public class UserService implements IUserService {
     private IUserRepository iUserRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public UserBE addUser(UserRequest userRequest) {
+        String encodedPassword = passwordEncoder.encode(userRequest.getPassword());
         UserBE userBE = modelMapper.map(userRequest, UserBE.class);
+        userBE.setPassword(encodedPassword);
         return iUserRepository.save(userBE);
     }
 
@@ -35,7 +42,7 @@ public class UserService implements IUserService {
     public UserBE getUserById(String id) {
         Optional<UserBE> userBE = iUserRepository.findById(id);
         if (userBE.isEmpty()) {
-            throw new UserCustomException("User not found", HttpStatus.NOT_FOUND);
+            throw new UserCustomException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         return userBE.get();
     }
@@ -44,7 +51,7 @@ public class UserService implements IUserService {
     public boolean deleteUser(String id) {
         Optional<UserBE> userBE = iUserRepository.findById(id);
         if (userBE.isEmpty()) {
-            throw new UserCustomException("User not found", HttpStatus.NOT_FOUND);
+            throw new UserCustomException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         iUserRepository.deleteById(id);
         return true;
